@@ -13,7 +13,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'], // هذا السطر هو الأهم لإنتاج ملف lcov.info
-      reportsDirectory: './coverage'
+      include: ['src/**/*'], // خليه يقرأ كل اللي جوه src
+      all: true, // يحسب التغطية لكل الملفات حتى اللي مش معمولة ليها تست
     },
   },
 })
