@@ -73,7 +73,7 @@ pipeline {
             steps {
                 script {
                     // استخدام الكريدنشالز مباشرة بدل تول الدوكر
-                    withCredentials([usernamePassword(credentialsId: 'docker-cred', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
                         
                         // بناء الصورة مع تمرير الـ API Key كـ Build Arg
                         sh "docker build --build-arg VITE_APP_TMDB_V3_API_KEY=${TMDB_API_KEY} -t ${DOCKER_REGISTRY_USER}/netflix:latest ."
