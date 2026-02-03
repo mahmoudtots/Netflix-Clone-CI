@@ -98,24 +98,22 @@ pipeline {
                 sh "trivy image ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest > trivyimage.txt" 
             }
         }
-        stage("Push to Nexus") {
+        stage('Build & Upload Artifacts') {
             steps {
                 script {
-                    // استبدل هذا العنوان بعنوان سيرفر Nexus والمنفذ الخاص بالدوكر ريجستري
-                    def nexusRegistry = "192.168.152.133:8081" 
-                    def repoName = "${nexusRegistry}/${IMAGE_NAME}"
-                    def imageTag = "${env.BUILD_NUMBER}"
+                    // 1. بناء المشروع
+                    sh 'yarn build'
+                    
+                    // 2. ضغط مجلد التوزيع
+                    sh "zip -r netflix-build-${BUILD_NUMBER}.zip dist/"
 
+                    // 3. الرفع إلى نكسس (Raw Repository)
                     withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
-                        
-                        // عمل Tag للصورة بعنوان الـ Nexus
-                        sh "docker tag ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest ${repoName}:${imageTag}"
-                        sh "docker tag ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest ${repoName}:latest"
-
-                        // تسجيل الدخول لـ Nexus والرفع
-                        sh "echo ${NEXUS_PASS} | docker login -u ${NEXUS_USER} --password-stdin ${nexusRegistry}"
-                        sh "docker push ${repoName}:${imageTag}"
-                        sh "docker push ${repoName}:latest"
+                        sh """
+                        curl -v -u ${NEXUS_USER}:${NEXUS_PASS} \
+                        --upload-file netflix-build-${BUILD_NUMBER}.zip \
+                        http://192.168.152.133:8081/repository/netflix-artifacts/netflix-build-${BUILD_NUMBER}.zip
+                        """
                     }
                 }
             }
