@@ -98,28 +98,28 @@ pipeline {
                 sh "trivy image ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest > trivyimage.txt" 
             }
         }
-        // stage("Push to Nexus") {
-        //     steps {
-        //         script {
-        //             // استبدل هذا العنوان بعنوان سيرفر Nexus والمنفذ الخاص بالدوكر ريجستري
-        //             def nexusRegistry = "192.168.152.133:8082" 
-        //             def repoName = "${nexusRegistry}/${IMAGE_NAME}"
-        //             def imageTag = "${env.BUILD_NUMBER}"
+        stage("Push to Nexus") {
+            steps {
+                script {
+                    // استبدل هذا العنوان بعنوان سيرفر Nexus والمنفذ الخاص بالدوكر ريجستري
+                    def nexusRegistry = "192.168.152.133:8081" 
+                    def repoName = "${nexusRegistry}/${IMAGE_NAME}"
+                    def imageTag = "${env.BUILD_NUMBER}"
 
-        //             withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
+                    withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
                         
-        //                 // عمل Tag للصورة بعنوان الـ Nexus
-        //                 sh "docker tag ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest ${repoName}:${imageTag}"
-        //                 sh "docker tag ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest ${repoName}:latest"
+                        // عمل Tag للصورة بعنوان الـ Nexus
+                        sh "docker tag ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest ${repoName}:${imageTag}"
+                        sh "docker tag ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest ${repoName}:latest"
 
-        //                 // تسجيل الدخول لـ Nexus والرفع
-        //                 sh "echo ${NEXUS_PASS} | docker login -u ${NEXUS_USER} --password-stdin ${nexusRegistry}"
-        //                 sh "docker push ${repoName}:${imageTag}"
-        //                 sh "docker push ${repoName}:latest"
-        //             }
-        //         }
-        //     }
-        // }
+                        // تسجيل الدخول لـ Nexus والرفع
+                        sh "echo ${NEXUS_PASS} | docker login -u ${NEXUS_USER} --password-stdin ${nexusRegistry}"
+                        sh "docker push ${repoName}:${imageTag}"
+                        sh "docker push ${repoName}:latest"
+                    }
+                }
+            }
+        }
     // نشر الحاوية
         stage('Deploy to Container') {
             steps {
