@@ -1,18 +1,18 @@
 pipeline {
     agent any
     // تعريف الأدوات المستخدمة في البايبلاين
-    tools {
-        nodejs 'NodeJS-18'
-    }
-    // تعريف المتغيرات البيئية
-    environment {
-        SCANNER_HOME = tool 'sonar-scanner'
-        TMDB_API_KEY = credentials('TMDB_API_KEY')
-        DOCKER_REGISTRY_USER = 'mahmoudtots'
-        IMAGE_NAME = 'netflix-clone'
-    }
-    // مراحل البايبلاين
-    // استدعاء الكود من المستودع وتنظيف مساحة العمل
+//    // tools {
+//         nodejs 'NodeJS-18'
+//    // }
+//     // تعريف المتغيرات البيئية
+//   //  environment {
+//   //      SCANNER_HOME = tool 'sonar-scanner'
+//     //    TMDB_API_KEY = credentials('TMDB_API_KEY')
+//     //    DOCKER_REGISTRY_USER = 'mahmoudtots'
+//     //    IMAGE_NAME = 'netflix-clone'
+//    // }
+//     // مراحل البايبلاين
+//     // استدعاء الكود من المستودع وتنظيف مساحة العمل
     stages {
         stage('Clean & Checkout') {
             steps {
