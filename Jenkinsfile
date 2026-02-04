@@ -13,13 +13,13 @@ pipeline {
 //    // }
 //     // مراحل البايبلاين
 //     // استدعاء الكود من المستودع وتنظيف مساحة العمل
-    stages {
-        stage('Clean & Checkout') {
-            steps {
-                cleanWs()
-                checkout scm
-            }
-        }
+    // stages {
+    //     stage('Clean & Checkout') {
+    //         steps {
+    //             cleanWs()
+    //             checkout scm
+    //         }
+    //     }
     // // تثبيت التبعيات
     //     stage('Install Dependencies') {
     //         steps {
@@ -127,7 +127,7 @@ pipeline {
     //             """
     //         }
     //     }
-         } 
+        //  } 
     // Notifications with email and Slack
        post {
         always {
