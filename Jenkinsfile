@@ -14,12 +14,12 @@ pipeline {
 //     // مراحل البايبلاين
 //     // استدعاء الكود من المستودع وتنظيف مساحة العمل
      stages {
-    //     stage('Clean & Checkout') {
-    //         steps {
-    //             cleanWs()
-    //             checkout scm
-    //         }
-    //     }
+        stage('Clean & Checkout') {
+            steps {
+                cleanWs()
+                checkout scm
+            }
+        }
     // // تثبيت التبعيات
     //     stage('Install Dependencies') {
     //         steps {
