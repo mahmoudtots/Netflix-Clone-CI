@@ -13,7 +13,7 @@ pipeline {
 //    // }
 //     // مراحل البايبلاين
 //     // استدعاء الكود من المستودع وتنظيف مساحة العمل
-    // stages {
+     stages {
     //     stage('Clean & Checkout') {
     //         steps {
     //             cleanWs()
@@ -127,7 +127,7 @@ pipeline {
     //             """
     //         }
     //     }
-        //  } 
+          } 
     // Notifications with email and Slack
        post {
         always {
