@@ -151,7 +151,7 @@ pipeline {
                 sh """
                 curl -X POST -H "Content-Type: application/json" \
                 -d '${payload}' \
-                http://localhost:5678/webhook-test/ci-jenkins-alert
+                http://localhost:5678/webhook/ci-jenkins-alert
                 """
             }
             // تنظيف مساحة العمل
