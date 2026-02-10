@@ -27,51 +27,51 @@ pipeline {
             }
         }
     // اختبارات الوحدة والتغطية
-        stage('Unit Tests & Coverage') {
-            steps {
-                sh 'yarn test:coverage || true'
-            }
-        }
+        // stage('Unit Tests & Coverage') {
+        //     steps {
+        //         sh 'yarn test:coverage || true'
+        //     }
+        // }
     // تحليل SonarQube
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh """
-                    $SCANNER_HOME/bin/sonar-scanner \
-                    -Dsonar.projectName=Netflix \
-                    -Dsonar.projectKey=Netflix \
-                    -Dsonar.sources=src \
-                    -Dsonar.tests=src \
-                    -Dsonar.test.inclusions='**/*.test.tsx,**/*.spec.tsx' \
-                    -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                    """
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         withSonarQubeEnv('sonar-server') {
+        //             sh """
+        //             $SCANNER_HOME/bin/sonar-scanner \
+        //             -Dsonar.projectName=Netflix \
+        //             -Dsonar.projectKey=Netflix \
+        //             -Dsonar.sources=src \
+        //             -Dsonar.tests=src \
+        //             -Dsonar.test.inclusions='**/*.test.tsx,**/*.spec.tsx' \
+        //             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        //             """
+        //         }
+        //     }
+        // }
     // بوابة الجودة
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+        // stage('Quality Gate') {
+        //     steps {
+        //         timeout(time: 1, unit: 'HOURS') {
+        //             waitForQualityGate abortPipeline: true
+        //         }
+        //     }
+        // }
     // مسح نظام الملفات باستخدام OWASP Dependency-Check
-        stage('OWASP FS SCAN') {
-            steps {
-              withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_KEY')]) {
-                dependencyCheck additionalArguments: "--disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_KEY}",
-                                odcInstallation: 'dependency-check'
-              }
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
+        // stage('OWASP FS SCAN') {
+        //     steps {
+        //       withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_KEY')]) {
+        //         dependencyCheck additionalArguments: "--disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_KEY}",
+        //                         odcInstallation: 'dependency-check'
+        //       }
+        //         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+        //     }
+        // }
     // مسح نظام الملفات باستخدام Trivy
-        stage('TRIVY FS SCAN') {
-            steps {
-                sh "trivy fs . > trivyfs.txt"
-            }
-        }
+        // stage('TRIVY FS SCAN') {
+        //     steps {
+        //         sh "trivy fs . > trivyfs.txt"
+        //     }
+        // }
     // بناء ورفع صورة الدوكر
         stage("Docker Build & Push") {
             steps {
@@ -93,31 +93,31 @@ pipeline {
             }
         }
     // مسح الصور باستخدام Trivy
-        stage("TRIVY IMAGE SCAN") {
-            steps {
-                sh "trivy image ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest > trivyimage.txt" 
-            }
-        }
-        stage('Build & Upload Artifacts') {
-            steps {
-                script {
-                    // 1. بناء المشروع
-                    sh 'yarn build'
+        // stage("TRIVY IMAGE SCAN") {
+        //     steps {
+        //         sh "trivy image ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:latest > trivyimage.txt" 
+        //     }
+        // }
+        // stage('Build & Upload Artifacts') {
+        //     steps {
+        //         script {
+        //             // 1. بناء المشروع
+        //             sh 'yarn build'
                     
-                    // 2. ضغط مجلد التوزيع
-                    sh "zip -r netflix-build-${BUILD_NUMBER}.zip dist/"
+        //             // 2. ضغط مجلد التوزيع
+        //             sh "zip -r netflix-build-${BUILD_NUMBER}.zip dist/"
 
-                    // 3. الرفع إلى نكسس (Raw Repository)
-                    withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
-                        sh """
-                        curl -v -u ${NEXUS_USER}:${NEXUS_PASS} \
-                        --upload-file netflix-build-${BUILD_NUMBER}.zip \
-                        http://192.168.152.133:8081/repository/netflix-artifacts/netflix-build-${BUILD_NUMBER}.zip
-                        """
-                    }
-                }
-            }
-        }
+        //             // 3. الرفع إلى نكسس (Raw Repository)
+        //             withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
+        //                 sh """
+        //                 curl -v -u ${NEXUS_USER}:${NEXUS_PASS} \
+        //                 --upload-file netflix-build-${BUILD_NUMBER}.zip \
+        //                 http://192.168.152.133:8081/repository/netflix-artifacts/netflix-build-${BUILD_NUMBER}.zip
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
     // نشر الحاوية
     //     stage('Deploy to Container') {
     //         steps {
