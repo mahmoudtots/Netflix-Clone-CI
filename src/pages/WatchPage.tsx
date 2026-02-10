@@ -49,7 +49,7 @@ export function Component() {
         {
           // src: videoData?.video,
           // src:http://uniontvs.com:80/mshahy23/Ms1234567890/473603
-          src: "http://uniontvs.com:80/movie/mshahy23/Ms1234567890/483411.mp4",
+          src: "src:https://drive.google.com/uc?export=download&id=1IeheLaBpeJW-23ut80XMx9FRJPyDH_P6",
           type: "video/mp4", // تم التغيير من mpegurl إلى mp4
           //src: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
           //src: "https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
@@ -273,6 +273,7 @@ export function Component() {
 }
 
 Component.displayName = "WatchPage";
+
 
 
 
