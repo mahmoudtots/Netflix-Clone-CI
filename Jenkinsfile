@@ -119,12 +119,12 @@ pipeline {
         //     }
         // }
     // نشر الحاوية
-        stage('Deploy to Container') {
-            steps {
-                sh "docker rm -f ${IMAGE_NAME} || true"
-                sh "docker run -d --name ${IMAGE_NAME} -p 8085:5000 ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER}"
-            }
-        }
+        // stage('Deploy to Container') {
+        //     steps {
+        //         sh "docker rm -f ${IMAGE_NAME} || true"
+        //         sh "docker run -d --name ${IMAGE_NAME} -p 8085:5000 ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER}"
+        //     }
+        // }
           } 
     // Notifications with email and Slack
        post {
