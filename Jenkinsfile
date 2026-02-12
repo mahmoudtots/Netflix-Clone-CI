@@ -1,6 +1,9 @@
 pipeline {
     agent any
-
+    options {
+    buildDiscarder(logRotator(numToKeepStr: '10')) // to keep just last 10 builds
+    disableConcurrentBuilds() //Just one build at a time to keep RAM
+    }
     // Define required tools for the pipeline
     tools {
         nodejs 'NodeJS-18'
@@ -12,6 +15,7 @@ pipeline {
         TMDB_API_KEY = credentials('TMDB_API_KEY')  // TMDB API key from Jenkins credentials
         DOCKER_REGISTRY_USER = 'mahmoudtots'    // Docker registry username
         IMAGE_NAME = 'netflix-clone'            // Docker image name
+        REPO_NAME = "${DOCKER_REGISTRY_USER}/${IMAGE_NAME}"
     }
 
     stages {
@@ -76,29 +80,33 @@ pipeline {
         }
 
         // Run Trivy filesystem scan
-        stage('TRIVY FS SCAN') {
+        stage('TRIVY File SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
             }
         }
 
         // Build Docker image and push to Docker registry
-        stage("Docker Build & Push") {
+        stage('Docker Build & Local Scan') {
+            steps {
+                script {
+                    def imageTag = "${env.BUILD_NUMBER}"
+                    // 1. Build locally first
+                    sh "docker build --build-arg VITE_APP_API_ENDPOINT_URL=https://api.themoviedb.org/3 --build-arg VITE_APP_TMDB_V3_API_KEY=${TMDB_API_KEY} -t ${REPO_NAME}:${imageTag} -t ${REPO_NAME}:latest ."
+                    
+                    // 2. Scan the image BEFORE pushing (Security Gate)
+                    sh "trivy image --severity HIGH,CRITICAL ${REPO_NAME}:latest > trivyimage.txt"
+                }
+            }
+        }
+
+        stage('Docker Push') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-
-                        // Use Jenkins build number as image tag
-                        def imageTag = "${env.BUILD_NUMBER}"
-                        def repoName = "${DOCKER_REGISTRY_USER}/${IMAGE_NAME}"
-
-                        // Build Docker image with required build arguments
-                        sh "docker build --build-arg VITE_APP_API_ENDPOINT_URL=https://api.themoviedb.org/3 --build-arg VITE_APP_TMDB_V3_API_KEY=${TMDB_API_KEY} -t ${repoName}:${imageTag} -t ${repoName}:latest ."
-
-                        // Login to Docker registry and push images
                         sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
-                        sh "docker push ${repoName}:${imageTag}"
-                        sh "docker push ${repoName}:latest"
+                        sh "docker push ${REPO_NAME}:${env.BUILD_NUMBER}"
+                        sh "docker push ${REPO_NAME}:latest"
                     }
                 }
             }
@@ -181,7 +189,7 @@ pipeline {
                     "emoji": "${statusEmoji}",
                     "url": "${env.BUILD_URL}",
                     "trivy_scan": "${trivySummary}",
-                    "sonar_url": "http://54.211.122.201:9000/dashboard?id=Netflix"
+                    "sonar_url": "http://54.211.122.201:9000/dashboard?id=Netflix",
                     "author": "NTI-CIT-6 Months-Devops-NasrCity-G2-Team3"
                 }
                 """
