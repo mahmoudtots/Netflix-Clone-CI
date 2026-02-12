@@ -74,9 +74,9 @@ pipeline {
                 // withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_KEY')]) {
                 //     dependencyCheck additionalArguments: "--disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_KEY}",
                 //                     odcInstallation: 'dependency-check'
+                //}
                 dependencyCheck additionalArguments: "--disableYarnAudit --disableNodeAudit --nonInteractive", 
                 odcInstallation: 'dependency-check'
-                }
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
