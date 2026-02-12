@@ -122,7 +122,7 @@ pipeline {
                         sh """
                         curl -v -u ${NEXUS_USER}:${NEXUS_PASS} \
                         --upload-file netflix-build-${BUILD_NUMBER}.zip \
-                        http://192.168.152.133:8081/repository/netflix-artifacts/netflix-build-${BUILD_NUMBER}.zip
+                        http://localhost:8081/repository/netflix-artifacts/netflix-build-${BUILD_NUMBER}.zip
                         """
                     }
                 }
@@ -187,7 +187,7 @@ pipeline {
                 sh """
                 curl -X POST -H "Content-Type: application/json" \
                 -d '${payload}' \
-                http://54.211.122.201:5678/webhook/ci-jenkins-alert
+                http://localhost:5678/webhook/ci-jenkins-alert
                 """
             }
 
