@@ -93,7 +93,7 @@ pipeline {
                         def repoName = "${DOCKER_REGISTRY_USER}/${IMAGE_NAME}"
 
                         // Build Docker image with required build arguments
-                        sh "docker build --build-arg VITE_APP_API_ENDPOINT_URL=https://api.themoviedb.org/3 --build-arg VITE_APP_TMDB_V3_API_KEY=${TMDB_API_KEY} -t ${repoName}:${imageTag} -t ${repoName}:latest ."
+                        sh 'docker build --build-arg VITE_APP_API_ENDPOINT_URL=https://api.themoviedb.org/3 --build-arg VITE_APP_TMDB_V3_API_KEY=${TMDB_API_KEY} -t ${repoName}:${imageTag} -t ${repoName}:latest .'
 
                         // Login to Docker registry and push images
                         sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
@@ -169,8 +169,9 @@ pipeline {
     post {
         always {
             script {
+                def trivySummary = sh(script: "grep -E 'CRITICAL:|HIGH:' trivyfs.txt | tr -d '\\n' || echo 'No issues found'", returnStdout: true).trim()
                 def statusEmoji = (currentBuild.currentResult == 'SUCCESS') ? "✅" : "❌"
-
+                def statusColor = (currentBuild.currentResult == 'SUCCESS') ? "#2ecc71" : "#e50914"
                 def payload = """
                 {
                     "project": "${env.JOB_NAME}",
@@ -179,7 +180,9 @@ pipeline {
                     "image": "${DOCKER_REGISTRY_USER}/${IMAGE_NAME}",
                     "emoji": "${statusEmoji}",
                     "url": "${env.BUILD_URL}",
-                    "author": "Mahmoud Yousef"
+                    "trivy_scan": "${trivySummary}",
+                    "sonar_url": "http://54.211.122.201:9000/dashboard?id=Netflix"
+                    "author": "NTI-CIT-6 Months-Devops-NasrCity-G2-Team3"
                 }
                 """
 
