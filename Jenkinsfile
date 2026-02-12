@@ -130,40 +130,40 @@ pipeline {
         }
 
         // Clone CD repository and update Kubernetes deployment image tag
-        stage('Update Deployment Image') {
-            steps {
-                script {
+    //     stage('Update Deployment Image') {
+    //         steps {
+    //             script {
 
-                    dir('cd-repo') {
+    //                 dir('cd-repo') {
 
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: '*/main']],
-                            userRemoteConfigs: [[
-                                url: 'https://github.com/habdelazim743-collab/complete_k8s_config_for_netfix_app.git',
-                                credentialsId: 'git-creds'
-                            ]]
-                        ])
+    //                     checkout([
+    //                         $class: 'GitSCM',
+    //                         branches: [[name: '*/main']],
+    //                         userRemoteConfigs: [[
+    //                             url: 'https://github.com/habdelazim743-collab/complete_k8s_config_for_netfix_app.git',
+    //                             credentialsId: 'git-creds'
+    //                         ]]
+    //                     ])
 
-                        // Update image tag inside deployment.yaml
-                        sh """
-                        cd app
-                        sed -i "s|image:.*|image: ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:${BUILD_NUMBER}|" deployment.yaml
-                        """
+    //                     // Update image tag inside deployment.yaml
+    //                     sh """
+    //                     cd app
+    //                     sed -i "s|image:.*|image: ${DOCKER_REGISTRY_USER}/${IMAGE_NAME}:${BUILD_NUMBER}|" deployment.yaml
+    //                     """
 
-                        // Commit and push updated deployment file
-                        sh """
-                        git config user.email "ci@company.com"
-                        git config user.name "jenkins-ci"
-                        git add app/deployment.yaml
-                        git commit -m "ci: bump image tag to ${BUILD_NUMBER}" || echo "No changes"
-                        git push origin main
-                        """
-                    }
-                }
-            }
-        }
-    }
+    //                     // Commit and push updated deployment file
+    //                     sh """
+    //                     git config user.email "ci@company.com"
+    //                     git config user.name "jenkins-ci"
+    //                     git add app/deployment.yaml
+    //                     git commit -m "ci: bump image tag to ${BUILD_NUMBER}" || echo "No changes"
+    //                     git push origin main
+    //                     """
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     // Post-build notifications
     post {
@@ -192,26 +192,6 @@ pipeline {
             }
 
             cleanWs()
-        }
-
-        success {
-            mail to: 'mahmoudyousef055@gmail.com',
-                 subject: "Success: Pipeline ${currentBuild.fullDisplayName}",
-                 body: "Great job! The Netflix Clone pipeline finished successfully. Check it here: ${env.BUILD_URL}"
-
-            slackSend channel: '#ci',
-                      color: 'good',
-                      message: "Build successful: ${env.JOB_NAME} [${env.BUILD_NUMBER}] - ${env.BUILD_URL}"
-        }
-
-        failure {
-            mail to: 'mahmoudyousef055@gmail.com',
-                 subject: "Failed: Pipeline ${currentBuild.fullDisplayName}",
-                 body: "Something went wrong! The Netflix Clone pipeline failed. Review the logs here: ${env.BUILD_URL}"
-
-            slackSend channel: '#ci',
-                      color: 'danger',
-                      message: "Build failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}] - ${env.BUILD_URL}"
         }
     }
 }
