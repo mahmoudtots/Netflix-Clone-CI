@@ -49,8 +49,8 @@ export function Component() {
         {
           // src: videoData?.video,
           //src: "src:https://drive.google.com/uc?export=download&id=1IeheLaBpeJW-23ut80XMx9FRJPyDH_P6",
-          src: "https://bucketforstreaming1223.s3.us-east-1.amazonaws.com/WhatsApp+Video+2026-02-13+at+12.13.29+AM.mp4",
-          //src: "https://bucketforstreaming1223.s3.us-east-1.amazonaws.com/The+Godfather+%E2%80%A2+Main+Theme+%E2%80%A2+Nino+Rota+(%D9%85%D8%B9%D8%AF%D9%84).MP4",
+          //src: "https://bucketforstreaming1223.s3.us-east-1.amazonaws.com/WhatsApp+Video+2026-02-13+at+12.13.29+AM.mp4",
+          src: "https://bucketforstreaming1223.s3.us-east-1.amazonaws.com/The+Godfather+%E2%80%A2+Main+Theme+%E2%80%A2+Nino+Rota+(%D9%85%D8%B9%D8%AF%D9%84).MP4",
           type: "video/mp4", // تم التغيير من mpegurl إلى mp4
           //src: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
           //src: "https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
@@ -274,6 +274,7 @@ export function Component() {
 }
 
 Component.displayName = "WatchPage";
+
 
 
 
