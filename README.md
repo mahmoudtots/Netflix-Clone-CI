@@ -921,10 +921,15 @@ This project improved skills in:
 
 ------------------------------------------------------------------------
 
-## 👨‍💻 Author
+## 👨‍💻 Authors
 
+Hussein Abdelazim\
+Mahmoud Youssef\
 Mina Shahir\
-DevOps / Cloud Engineer
+Mohamed Fadl\
+Mustafa Alsharaawy\
+
+DevOps / Cloud Engineers
 
 ------------------------------------------------------------------------
 
