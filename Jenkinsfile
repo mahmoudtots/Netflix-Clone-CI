@@ -39,96 +39,97 @@ pipeline {
         stage('Unit Tests & Coverage') {
             steps {
                 sh 'yarn test:coverage'
+                sh 'exit 1'
             }
         }
 
-        // Run SonarQube static code analysis
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh """
-                    $SCANNER_HOME/bin/sonar-scanner \
-                    -Dsonar.projectName=Netflix \
-                    -Dsonar.projectKey=Netflix \
-                    -Dsonar.sources=src \
-                    -Dsonar.tests=src \
-                    -Dsonar.test.inclusions='**/*.test.tsx,**/*.spec.tsx' \
-                    -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                    """
-                }
-            }
-        }
-
-        // Wait for SonarQube Quality Gate result
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        // Run OWASP Dependency-Check scan on filesystem
-        // stage('OWASP FS SCAN') {
+        // // Run SonarQube static code analysis
+        // stage('SonarQube Analysis') {
         //     steps {
-        //         withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_KEY')]) {
-        //             dependencyCheck additionalArguments: "--disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_KEY}",
-        //                             odcInstallation: 'dependency-check'
+        //         withSonarQubeEnv('sonar-server') {
+        //             sh """
+        //             $SCANNER_HOME/bin/sonar-scanner \
+        //             -Dsonar.projectName=Netflix \
+        //             -Dsonar.projectKey=Netflix \
+        //             -Dsonar.sources=src \
+        //             -Dsonar.tests=src \
+        //             -Dsonar.test.inclusions='**/*.test.tsx,**/*.spec.tsx' \
+        //             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        //             """
         //         }
-        //         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
         //     }
         // }
 
-        // Run Trivy filesystem scan
-        stage('TRIVY File SCAN') {
-            steps {
-                sh "trivy fs . > trivyfs.txt"
-            }
-        }
+        // // Wait for SonarQube Quality Gate result
+        // stage('Quality Gate') {
+        //     steps {
+        //         timeout(time: 1, unit: 'HOURS') {
+        //             waitForQualityGate abortPipeline: true
+        //         }
+        //     }
+        // }
 
-        // Build Docker image and push to Docker registry
-        stage('Docker Build & Local Scan') {
-            steps {
-                script {
-                    def imageTag = "${env.BUILD_NUMBER}"
-                    // 1. Build locally first
-                    sh "docker build --build-arg VITE_APP_API_ENDPOINT_URL=https://api.themoviedb.org/3 --build-arg VITE_APP_TMDB_V3_API_KEY=${TMDB_API_KEY} -t ${REPO_NAME}:${imageTag} -t ${REPO_NAME}:latest ."
+        // // Run OWASP Dependency-Check scan on filesystem
+        // // stage('OWASP FS SCAN') {
+        // //     steps {
+        // //         withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_KEY')]) {
+        // //             dependencyCheck additionalArguments: "--disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_KEY}",
+        // //                             odcInstallation: 'dependency-check'
+        // //         }
+        // //         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+        // //     }
+        // // }
+
+        // // Run Trivy filesystem scan
+        // stage('TRIVY File SCAN') {
+        //     steps {
+        //         sh "trivy fs . > trivyfs.txt"
+        //     }
+        // }
+
+        // // Build Docker image and push to Docker registry
+        // stage('Docker Build & Local Scan') {
+        //     steps {
+        //         script {
+        //             def imageTag = "${env.BUILD_NUMBER}"
+        //             // 1. Build locally first
+        //             sh "docker build --build-arg VITE_APP_API_ENDPOINT_URL=https://api.themoviedb.org/3 --build-arg VITE_APP_TMDB_V3_API_KEY=${TMDB_API_KEY} -t ${REPO_NAME}:${imageTag} -t ${REPO_NAME}:latest ."
                     
-                    // 2. Scan the image BEFORE pushing (Security Gate)
-                    sh "trivy image --severity HIGH,CRITICAL ${REPO_NAME}:latest > trivyimage.txt"
-                }
-            }
-        }
+        //             // 2. Scan the image BEFORE pushing (Security Gate)
+        //             sh "trivy image --severity HIGH,CRITICAL ${REPO_NAME}:latest > trivyimage.txt"
+        //         }
+        //     }
+        // }
 
-        stage('Docker Push') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                        sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
-                        sh "docker push ${REPO_NAME}:${env.BUILD_NUMBER}"
-                        sh "docker push ${REPO_NAME}:latest"
-                    }
-                }
-            }
-        }
+        // stage('Docker Push') {
+        //     steps {
+        //         script {
+        //             withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+        //                 sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+        //                 sh "docker push ${REPO_NAME}:${env.BUILD_NUMBER}"
+        //                 sh "docker push ${REPO_NAME}:latest"
+        //             }
+        //         }
+        //     }
+        // }
 
-        // Build frontend artifact and upload it to Nexus repository
-        stage('Build & Upload Artifacts') {
-            steps {
-                script {
-                    sh 'yarn build'
-                    sh "zip -r netflix-build-${BUILD_NUMBER}.zip dist/"
+        // // Build frontend artifact and upload it to Nexus repository
+        // stage('Build & Upload Artifacts') {
+        //     steps {
+        //         script {
+        //             sh 'yarn build'
+        //             sh "zip -r netflix-build-${BUILD_NUMBER}.zip dist/"
 
-                    withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
-                        sh """
-                        curl -v -u ${NEXUS_USER}:${NEXUS_PASS} \
-                        --upload-file netflix-build-${BUILD_NUMBER}.zip \
-                        http://localhost:8081/repository/netflix-artifacts/netflix-build-${BUILD_NUMBER}.zip
-                        """
-                    }
-                }
-            }
-        }
+        //             withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
+        //                 sh """
+        //                 curl -v -u ${NEXUS_USER}:${NEXUS_PASS} \
+        //                 --upload-file netflix-build-${BUILD_NUMBER}.zip \
+        //                 http://localhost:8081/repository/netflix-artifacts/netflix-build-${BUILD_NUMBER}.zip
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
 
         // Clone CD repository and update Kubernetes deployment image tag
     //     stage('Update Deployment Image') {
@@ -187,7 +188,7 @@ pipeline {
                     "url": "${env.BUILD_URL}",
                     "trivy_scan": "${trivySummary}",
                     "sonar_url": "http://192.168.152.133:9000/dashboard?id=Netflix",
-                    "author": "NTI-CIT-6 Months-Devops-NasrCity-G2-Team3"
+                    "author": "NTI-CIT-6 Months-Devops-NasrCity-G2-Team3",
                     "logs": "${buildLogs}"
                 }
                 """
