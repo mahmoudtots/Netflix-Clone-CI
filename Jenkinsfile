@@ -170,6 +170,9 @@ pipeline {
     post {
         always {
             script {
+            // Get last 300 lines from build log
+            def buildLogs = currentBuild.rawBuild.getLog(300).join("\n")
+            buildLogs = buildLogs.replace("\"", "\\\"")
                 def trivySummary = sh(script: "grep -E 'CRITICAL:|HIGH:' trivyfs.txt | tr -d '\\n' || echo 'No issues found'", returnStdout: true).trim()
                 def statusEmoji = (currentBuild.currentResult == 'SUCCESS') ? "✅" : "❌"
                 def statusColor = (currentBuild.currentResult == 'SUCCESS') ? "#2ecc71" : "#e50914"
@@ -185,6 +188,7 @@ pipeline {
                     "trivy_scan": "${trivySummary}",
                     "sonar_url": "http://192.168.152.133:9000/dashboard?id=Netflix",
                     "author": "NTI-CIT-6 Months-Devops-NasrCity-G2-Team3"
+                    "logs": "${buildLogs}"
                 }
                 """
 
