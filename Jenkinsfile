@@ -167,12 +167,13 @@ pipeline {
     //     }
         }
 
+    
     // Post-build notifications
     post {
         always {
             script {
             // Get last 300 lines from build log
-                def buildLogs = currentBuild.rawBuild.getLog(300).join("\n")def buildLogs = sh(
+                def buildLogs = sh(
                     script: "tail -n 300 build.log || echo 'No logs found'",
                     returnStdout: true
                     ).trim()
