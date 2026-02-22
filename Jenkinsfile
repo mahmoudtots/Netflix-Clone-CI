@@ -173,11 +173,12 @@ pipeline {
         always {
             script {
             // Get last 300 lines from build log
+                import groovy.json.JsonOutput
                 def buildLogs = sh(
                     script: "tail -n 300 build.log || echo 'No logs found'",
                     returnStdout: true
                     ).trim()
-                buildLogs = buildLogs.replace("\"", "\\\"")
+                def safeLogs = JsonOutput.toJson(buildLogs)
 
                 def trivySummary = sh(script: "grep -E 'CRITICAL:|HIGH:' trivyfs.txt | tr -d '\\n' || echo 'No issues found'", returnStdout: true).trim()
                 def statusEmoji = (currentBuild.currentResult == 'SUCCESS') ? "✅" : "❌"
@@ -194,7 +195,7 @@ pipeline {
                     "trivy_scan": "${trivySummary}",
                     "sonar_url": "http://192.168.152.133:9000/dashboard?id=Netflix",
                     "author": "NTI-CIT-6 Months-Devops-NasrCity-G2-Team3",
-                    "logs": "${buildLogs}"
+                    "logs": "${safeLogs}"
                 }
                 """
 
