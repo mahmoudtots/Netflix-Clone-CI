@@ -38,7 +38,7 @@ pipeline {
         // Run unit tests and generate coverage report
         stage('Unit Tests & Coverage') {
             steps {
-                sh 'yarn test:coverage || true'
+                sh 'yarn test:coverage'
             }
         }
 
@@ -183,7 +183,7 @@ pipeline {
                     "emoji": "${statusEmoji}",
                     "url": "${env.BUILD_URL}",
                     "trivy_scan": "${trivySummary}",
-                    "sonar_url": "http://54.211.122.201:9000/dashboard?id=Netflix",
+                    "sonar_url": "http://192.168.152.133:9000/dashboard?id=Netflix",
                     "author": "NTI-CIT-6 Months-Devops-NasrCity-G2-Team3"
                 }
                 """
@@ -192,7 +192,7 @@ pipeline {
                 sh """
                 curl -X POST -H "Content-Type: application/json" \
                 -d '${payload}' \
-                http://54.211.122.201:5678/webhook/ci-jenkins-alert
+                http://192.168.152.133:5678/webhook/ci-jenkins-alert
                 """
             }
 
