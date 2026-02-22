@@ -38,7 +38,7 @@ pipeline {
         // Run unit tests and generate coverage report
         stage('Unit Tests & Coverage') {
             steps {
-                sh 'yarn test:coverage'
+                sh 'yarn test:coverage | tee build.log'
                 sh 'exit 1'
             }
         }
@@ -172,8 +172,12 @@ pipeline {
         always {
             script {
             // Get last 300 lines from build log
-            def buildLogs = currentBuild.rawBuild.getLog(300).join("\n")
-            buildLogs = buildLogs.replace("\"", "\\\"")
+                def buildLogs = currentBuild.rawBuild.getLog(300).join("\n")def buildLogs = sh(
+                    script: "tail -n 300 build.log || echo 'No logs found'",
+                    returnStdout: true
+                    ).trim()
+                buildLogs = buildLogs.replace("\"", "\\\"")
+
                 def trivySummary = sh(script: "grep -E 'CRITICAL:|HIGH:' trivyfs.txt | tr -d '\\n' || echo 'No issues found'", returnStdout: true).trim()
                 def statusEmoji = (currentBuild.currentResult == 'SUCCESS') ? "✅" : "❌"
                 def statusColor = (currentBuild.currentResult == 'SUCCESS') ? "#2ecc71" : "#e50914"
